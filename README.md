@@ -5,13 +5,13 @@ slow right now, hopefully there is a way to speed it up a bit in the future.
 
 ## Examples
 
-![examples/lena.jpg]
+![](examples/lena.jpg)
 
-![examples/lena3.jpg]
+![](examples/lena3.jpg)
 
-![examples/sf.jpg]
+![](examples/sf.jpg)
 
-![examples/sf4.jpg]
+![](examples/sf4.jpg)
 
 ## To do:
 

@@ -7,7 +7,7 @@ slow right now, hopefully there is a way to speed it up a bit in the future.
 
 ![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena/lena.jpg)
 
-![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena/lena3.jpg)
+![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena/lena3.png)
 
 ![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/sf/sf.jpg)
 

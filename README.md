@@ -5,13 +5,13 @@ slow right now, hopefully there is a way to speed it up a bit in the future.
 
 ## Examples
 
-![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena.jpg)
+![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena/lena.jpg)
 
-![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena3.jpg)
+![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/lena/lena3.jpg)
 
-![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/sf.jpg)
+![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/sf/sf.jpg)
 
-![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/sf4.jpg)
+![](https://raw.githubusercontent.com/louis-paul/polypy/master/examples/sf/sf4.jpg)
 
 ## To do:
 

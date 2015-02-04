@@ -57,7 +57,7 @@ def get_point_distance(width, height):
 
 
 # generate_edges generates semi-random points in a list, based on an image that
-# was applied an matrix for edge detection
+# was applied an edge-detection kernel
 def generate_edges(im, points):
     im_edges = im.filter(ImageFilter.SHARPEN).filter(ImageFilter.FIND_EDGES)
     for x, y in product(range(im.size[0] - 1), range(im.size[1] - 1)):
@@ -72,7 +72,7 @@ def get_grayscale(r, g, b):
 
 
 # triangulate generates triangles between points and the list of the colors of
-# the pixels containes within
+# the pixels contained within
 def triangulate(im, points):
     triangles = Delaunay(points)
     colors = [None] * len(triangles.simplices)
@@ -96,13 +96,10 @@ def draw(im, points, triangles, colors):
             avg = [round(sum(y) / len(y)) for y in zip(*t_colors)]
             # Random darkening of the triangles
             (h, s, v) = colorsys.rgb_to_hsv(avg[0], avg[1], avg[2])
-            end = colorsys.hsv_to_rgb(h,
-                                      s,
+            end = colorsys.hsv_to_rgb(h, s,
                                       v - random.random() * DARKENING_FACTOR)
-        d.polygon(
-            [tuple(points[y]) for y in triangles.simplices[t]],
-            fill=tuple(map(lambda x: round(x), end))
-        )
+        d.polygon([tuple(points[y]) for y in triangles.simplices[t]],
+                  fill=tuple(map(lambda x: round(x), end)))
 
 
 if __name__ == "__main__":

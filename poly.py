@@ -93,7 +93,7 @@ def triangulate(im, points):
     decoded_colors = [None] * len(triangles.simplices)
     # Color decoding
     for i, c in enumerate(colors):
-        t = (c & 0xFFFF00000000) >> 32
+        t = (c & 0xFFFF << 32) >> 32
         if t == 0xFFFF:
             continue
         if not decoded_colors[t]:
@@ -104,12 +104,12 @@ def triangulate(im, points):
     return (triangles, decoded_colors)
 
 
-# triangulate_worker works concurrently by manipulating different rows as other
-# workers
+# triangulate_worker works concurrently by manipulating different rows
 def triangulate_worker(im, triangles, colors, worker_index, worker_count):
     for x, y in product(range(SPEEDUP_FACTOR_X,
                               im.size[0] - 1,
                               SPEEDUP_FACTOR_X),
+                        # Workers treat different rows
                         range(worker_index * SPEEDUP_FACTOR_Y,
                               im.size[1] - 1,
                               worker_count * SPEEDUP_FACTOR_Y)

@@ -1,10 +1,11 @@
 import colorsys
+import ctypes
 from itertools import product
+from multiprocessing import Process, Array
 from PIL import Image, ImageDraw, ImageFilter
 import random
 from scipy.spatial import Delaunay
 import sys
-from threading import Thread
 
 # Global parameters that are not (yet) automatically computed
 POINTS_COUNT = 150
@@ -13,7 +14,7 @@ EDGE_RATIO = .98
 DARKENING_FACTOR = 35
 SPEEDUP_FACTOR_X = 1
 SPEEDUP_FACTOR_Y = 1
-THREADING_FACTOR = 1
+CONCURRENCY_FACTOR = 3
 
 
 def main():
@@ -80,36 +81,48 @@ def get_grayscale(r, g, b):
 # the pixels contained within
 def triangulate(im, points):
     triangles = Delaunay(points)
-    colors = [None] * len(triangles.simplices)
-    # optional lock for the writing in the colors list. Haven't had any issue
-    # without it yet
-    # l = Lock()
-    threads = []
-    for i in range(THREADING_FACTOR):
-        t = Thread(target=triangulate_worker, args=(im, triangles, colors, i,
-                                                    THREADING_FACTOR))
-        t.daemon = True
-        threads.append(t)
-        t.start()
-    for i in threads:
-        t.join()
-    return (triangles, colors)
+    colors = Array(ctypes.c_uint64, im.size[0] * im.size[1], lock=True)
+    jobs = []
+    for i in range(CONCURRENCY_FACTOR):
+        p = Process(target=triangulate_worker, args=(im, triangles, colors, i,
+                                                     CONCURRENCY_FACTOR))
+        jobs.append(p)
+        p.start()
+    for i in jobs:
+        i.join()
+    decoded_colors = [None] * len(triangles.simplices)
+    # Color decoding
+    for i, c in enumerate(colors):
+        t = (c & 0xFFFF00000000) >> 32
+        if t == 0xFFFF:
+            continue
+        if not decoded_colors[t]:
+            decoded_colors[t] = []
+        decoded_colors[t].append((c & 0xFF,
+                                 (c & 0xFF00) >> 8,
+                                 (c & 0xFF0000) >> 16))
+    return (triangles, decoded_colors)
 
 
 # triangulate_worker works concurrently by manipulating different rows as other
 # workers
 def triangulate_worker(im, triangles, colors, worker_index, worker_count):
-    for x in range(SPEEDUP_FACTOR_X, im.size[0] - 1, SPEEDUP_FACTOR_X):
-        for y in range(worker_index * SPEEDUP_FACTOR_Y, im.size[1] - 1,
-                       worker_count * SPEEDUP_FACTOR_Y):
+    for x, y in product(range(SPEEDUP_FACTOR_X,
+                              im.size[0] - 1,
+                              SPEEDUP_FACTOR_X),
+                        range(worker_index * SPEEDUP_FACTOR_Y,
+                              im.size[1] - 1,
+                              worker_count * SPEEDUP_FACTOR_Y)
+                        ):
             t = triangles.find_simplex((x, y)).flat[0]
+            pixel_index = y * im.size[0] + x
+            colors[pixel_index] = (0xFFFF << 32)
             if not ~t:
                 continue
-            if not colors[t]:
-                colors[t] = []
-            # l.acquire()
-            colors[t].append(im.getpixel((x, y)))
-            # l.release()
+            # Colors and triangle ID are encoded to integers for fixed-size
+            # storing in the Array object through a 64-bit integer
+            (r, g, b) = im.getpixel((x, y))
+            colors[pixel_index] = ((t << 32) + (b << 16) + (g << 8) + r)
     return
 
 

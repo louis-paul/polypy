@@ -4,12 +4,16 @@ from PIL import Image, ImageDraw, ImageFilter
 import random
 from scipy.spatial import Delaunay
 import sys
+from threading import Thread
 
 # Global parameters that are not (yet) automatically computed
 POINTS_COUNT = 150
 EDGE_THRESHOLD = 172
 EDGE_RATIO = .98
 DARKENING_FACTOR = 35
+SPEEDUP_FACTOR_X = 1
+SPEEDUP_FACTOR_Y = 1
+THREADING_FACTOR = 1
 
 
 def main():
@@ -77,14 +81,36 @@ def get_grayscale(r, g, b):
 def triangulate(im, points):
     triangles = Delaunay(points)
     colors = [None] * len(triangles.simplices)
-    for x, y in product(range(im.size[0] - 1), range(im.size[1] - 1)):
-        t = triangles.find_simplex((x, y)).flat[0]
-        if not ~t:
-            continue
-        if not colors[t]:
-            colors[t] = []
-        colors[t].append(im.getpixel((x, y)))
+    # optional lock for the writing in the colors list. Haven't had any issue
+    # without it yet
+    # l = Lock()
+    threads = []
+    for i in range(THREADING_FACTOR):
+        t = Thread(target=triangulate_worker, args=(im, triangles, colors, i,
+                                                    THREADING_FACTOR))
+        t.daemon = True
+        threads.append(t)
+        t.start()
+    for i in threads:
+        t.join()
     return (triangles, colors)
+
+
+# triangulate_worker works concurrently by manipulating different rows as other
+# workers
+def triangulate_worker(im, triangles, colors, worker_index, worker_count):
+    for x in range(SPEEDUP_FACTOR_X, im.size[0] - 1, SPEEDUP_FACTOR_X):
+        for y in range(worker_index * SPEEDUP_FACTOR_Y, im.size[1] - 1,
+                       worker_count * SPEEDUP_FACTOR_Y):
+            t = triangles.find_simplex((x, y)).flat[0]
+            if not ~t:
+                continue
+            if not colors[t]:
+                colors[t] = []
+            # l.acquire()
+            colors[t].append(im.getpixel((x, y)))
+            # l.release()
+    return
 
 
 # draw draws triangles on an existing image using the average colors of the

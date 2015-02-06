@@ -16,5 +16,4 @@ slow right now, hopefully there is a way to speed it up a bit in the future.
 ## To do:
 
  - Automated calculation of constants
- - Parallel processing (the loop in the `triangulate` function is by far the slowest part)
  - User interface (Qt or console?)

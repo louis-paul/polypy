@@ -15,7 +15,7 @@ DARKENING_FACTOR = 35
 def main():
     if len(sys.argv) != 2 or not sys.argv[1]:
         print("Please provide the name of the file to process as an argument")
-        exit()
+        return 1
 
     im = Image.open(sys.argv[1])
 
@@ -30,6 +30,7 @@ def main():
     draw(im, points, triangles, colors)
 
     im.save("result.jpg", "jpeg", quality=95)
+    return 0
 
 
 # generate_random places semi-random point in a list

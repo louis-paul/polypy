@@ -115,12 +115,12 @@ def triangulate_worker(im, triangles, colors, worker_index, worker_count):
                               worker_count * SPEEDUP_FACTOR_Y)
                         ):
             t = triangles.find_simplex((x, y)).flat[0]
-            pixel_index = y * im.size[0] + x
-            colors[pixel_index] = (0xFFFF << 32)
+            pixel_index = y*im.size[0] + x
+            colors[pixel_index] = 0xFFFF << 32
             if not ~t:
                 continue
             # Colors and triangle ID are encoded to integers for fixed-size
-            # storing in the Array object through a 64-bit integer
+            # storage in the Array object through a 64-bit integer
             (r, g, b) = im.getpixel((x, y))
             colors[pixel_index] = ((t << 32) + (b << 16) + (g << 8) + r)
     return

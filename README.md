@@ -4,6 +4,9 @@ This small project turns images into their low-poly versions.
 
 ## Requirements
 
+PolyPy requires Python 3 to run. More specifically, Python 3.4.2 has been used 
+during the development, but everything should be fine with other versions.
+
 All of these should be installable via `pip`.
 
  - [Pillow](https://pypi.python.org/pypi/Pillow/)

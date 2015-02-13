@@ -8,7 +8,7 @@ from scipy.spatial import Delaunay
 import sys
 
 # Global parameters that are not (yet) automatically computed
-POINTS_COUNT = 150
+POINT_COUNT = 150
 EDGE_THRESHOLD = 172
 EDGE_RATIO = .98
 DARKENING_FACTOR = 35
@@ -42,7 +42,7 @@ def main():
 def generate_random(im, points):
     prop_x, prop_y = get_point_propagation(*im.size)
     point_distance = get_point_distance(*im.size)
-    for _ in range(POINTS_COUNT):
+    for _ in range(POINT_COUNT):
         x = random.randrange(round((im.size[0] + prop_x) / point_distance)) * \
             point_distance - (prop_x / 2)
         y = random.randrange(round((im.size[1] + prop_y) / point_distance)) * \
